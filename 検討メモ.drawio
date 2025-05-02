@@ -1,9 +1,47 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36" version="26.2.15">
   <diagram name="ページ1" id="yZgU_St6Hs6ONYUSl4Fl">
-    <mxGraphModel>
+    <mxGraphModel dx="1426" dy="743" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="yZ0nrVVDAWK3LVSV0sXl-15" value="" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="80" width="500" height="230" as="geometry" />
+        </mxCell>
+        <mxCell id="yZ0nrVVDAWK3LVSV0sXl-1" value="Actor" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="90" y="220" width="30" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="yZ0nrVVDAWK3LVSV0sXl-3" value="" style="html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;shadow=0;dashed=0;strokeWidth=1;shape=mxgraph.ios7.misc.iphone;strokeColor=#c0c0c0;flipH=0;flipV=0;" vertex="1" parent="1">
+          <mxGeometry x="140" y="164" width="50" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="yZ0nrVVDAWK3LVSV0sXl-4" value="PWA(React)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="130" y="140" width="90" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="yZ0nrVVDAWK3LVSV0sXl-5" value="" style="sketch=0;verticalLabelPosition=bottom;sketch=0;aspect=fixed;html=1;verticalAlign=top;strokeColor=none;fillColor=#000000;align=center;outlineConnect=0;pointerEvents=1;shape=mxgraph.citrix2.authentication_google;" vertex="1" parent="1">
+          <mxGeometry x="550" y="60" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="yZ0nrVVDAWK3LVSV0sXl-6" value="GCP" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="600" y="80" width="50" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="yZ0nrVVDAWK3LVSV0sXl-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;" edge="1" parent="1" source="yZ0nrVVDAWK3LVSV0sXl-8" target="yZ0nrVVDAWK3LVSV0sXl-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="yZ0nrVVDAWK3LVSV0sXl-8" value="" style="aspect=fixed;sketch=0;html=1;dashed=0;whitespace=wrap;verticalLabelPosition=bottom;verticalAlign=top;fillColor=#2875E2;strokeColor=#ffffff;points=[[0.005,0.63,0],[0.1,0.2,0],[0.9,0.2,0],[0.5,0,0],[0.995,0.63,0],[0.72,0.99,0],[0.5,1,0],[0.28,0.99,0]];shape=mxgraph.kubernetes.icon2;prIcon=api;flipH=0;flipV=0;" vertex="1" parent="1">
+          <mxGeometry x="330" y="185" width="50" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="yZ0nrVVDAWK3LVSV0sXl-9" value="Google Coud Run" style="text;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="305" y="140" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="yZ0nrVVDAWK3LVSV0sXl-11" value="" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;flipH=0;flipV=0;" vertex="1" parent="1">
+          <mxGeometry x="515" y="169" width="60" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="yZ0nrVVDAWK3LVSV0sXl-12" value="&lt;p&gt;&lt;b&gt;Google Cloud SQL&lt;/b&gt;&lt;/p&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="480" y="130" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="yZ0nrVVDAWK3LVSV0sXl-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="yZ0nrVVDAWK3LVSV0sXl-3" target="yZ0nrVVDAWK3LVSV0sXl-8">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="300" y="210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>

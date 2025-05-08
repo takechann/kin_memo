@@ -29,7 +29,7 @@ import {
 import { format } from 'date-fns';
 import { useWorkout } from '../context/WorkoutContext';
 
-// TabPanel component for Material UI tabs
+// Material UI タブ用のタブパネルコンポーネント
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -66,14 +66,15 @@ const StatsPage = () => {
   const lineColor = theme.palette.primary.main;
   const gridColor = theme.palette.divider;
 
-  // Update selected exercise when exercise types are loaded
+  // exerciseTypesが読み込まれたら、選択中の種目を初期化
   useEffect(() => {
+    // exerciseTypesがオブジェクトの配列になったため、nameプロパティを使用
     if (exerciseTypes.length > 0 && !selectedExercise) {
-      setSelectedExercise(exerciseTypes[0]);
+      setSelectedExercise(exerciseTypes[0].name); // 最初の種目の名前を設定
     }
   }, [exerciseTypes, selectedExercise]);
 
-  // Update chart data when selected exercise changes
+  // 選択中の種目が変更されたらチャートデータを更新
   useEffect(() => {
     if (!selectedExercise) return;
 
@@ -156,9 +157,11 @@ const StatsPage = () => {
             label="種目を選択"
             disabled={exerciseTypes.length === 0}
           >
+            {/* exerciseTypesがオブジェクト配列になったため、map処理を修正 */}
             {exerciseTypes.map((type) => (
-              <MenuItem key={type} value={type}>
-                {type}
+              // keyには一意なidを、valueには種目名(name)を使用
+              <MenuItem key={type.id} value={type.name}>
+                {type.name} {/* 表示もnameを使用 */}
               </MenuItem>
             ))}
           </Select>

@@ -6,13 +6,14 @@ import {
   Grid,
   Typography,
   TextField,
-  MenuItem,
+  // MenuItem, // Autocompleteを使用するため不要に
   Card,
   CardContent,
   IconButton,
   Stack,
   Snackbar,
   Alert,
+  Autocomplete, // Autocompleteをインポート
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -20,25 +21,25 @@ import { format } from 'date-fns';
 import { useWorkout } from '../context/WorkoutContext';
 
 const RecordPage = () => {
-  const { addWorkout, exerciseTypes } = useWorkout();
-  
-  // State for the form
+  const { addWorkout, exerciseTypes } = useWorkout(); // exerciseTypesは {id, name, group}[] になっている想定
+
+  // フォームの状態
   const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
-  const [exercises, setExercises] = useState([
-    { name: '', weight: '', reps: '', sets: '' }
-  ]);
+  // exercisesの状態 - repsとsetsにデフォルト値を設定
+  const initialExerciseState = { name: null, weight: '', reps: '10', sets: '3' }; // nameはnull初期化 (Autocomplete用)
+  const [exercises, setExercises] = useState([initialExerciseState]);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
     severity: 'success'
   });
 
-  // Add a new exercise entry
+  // 新しい種目入力欄を追加する関数 - デフォルト値を使用
   const addExercise = () => {
-    setExercises([...exercises, { name: '', weight: '', reps: '', sets: '' }]);
+    setExercises([...exercises, { ...initialExerciseState }]);
   };
 
-  // Remove an exercise entry
+  // 種目入力欄を削除する関数
   const removeExercise = (index) => {
     if (exercises.length === 1) {
       setSnackbar({
@@ -54,22 +55,25 @@ const RecordPage = () => {
     setExercises(newExercises);
   };
 
-  // Update an exercise entry
+  // 種目入力欄の値を更新する関数 (Autocomplete対応)
   const updateExercise = (index, field, value) => {
     const newExercises = [...exercises];
+    // Autocompleteからの値はオブジェクトの場合と文字列の場合がある
     newExercises[index][field] = value;
     setExercises(newExercises);
   };
 
-  // Handle form submission
+  // フォーム送信時の処理
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    // Validate form
+
+    // バリデーション: nameはオブジェクトか文字列か確認
     const isValid = exercises.every(
-      (ex) => ex.name && ex.weight && ex.reps && ex.sets
+      (ex) => ex.name && // nameがnullや空でないか
+               (typeof ex.name === 'string' || typeof ex.name?.name === 'string') && // 文字列かオブジェクトのnameプロパティがあるか
+               ex.weight && ex.reps && ex.sets
     );
-    
+
     if (!isValid) {
       setSnackbar({
         open: true,
@@ -78,25 +82,30 @@ const RecordPage = () => {
       });
       return;
     }
-    
-    // Create workout record
+
+    // ワークアウト記録オブジェクトを作成
     const workout = {
       date,
-      exercises: exercises.map(ex => ({
-        name: ex.name,
-        weight: parseFloat(ex.weight),
-        reps: parseInt(ex.reps, 10),
-        sets: parseInt(ex.sets, 10),
-      })),
+      exercises: exercises.map(ex => {
+        // nameがオブジェクトの場合はnameプロパティを、文字列の場合はそのまま使用
+        const exerciseName = typeof ex.name === 'string' ? ex.name : ex.name?.name;
+        return {
+          name: exerciseName, // 必ず文字列にする
+          weight: parseFloat(ex.weight) || 0, // 数値に変換、失敗したら0
+          reps: parseInt(ex.reps, 10) || 0, // 数値に変換、失敗したら0
+          sets: parseInt(ex.sets, 10) || 0, // 数値に変換、失敗したら0
+        };
+      }),
     };
-    
-    // Add workout to context
+
+    // コンテキストにワークアウトを追加 (ここでContext内のAPIコメントが活きる)
+    // トレーニング記録保存 (Context経由)
     addWorkout(workout);
-    
-    // Reset form
-    setExercises([{ name: '', weight: '', reps: '', sets: '' }]);
-    
-    // Show success message
+
+    // フォームをリセット (デフォルト値で)
+    setExercises([{ ...initialExerciseState }]);
+
+    // 成功メッセージを表示
     setSnackbar({
       open: true,
       message: 'トレーニングを記録しました',
@@ -135,27 +144,39 @@ const RecordPage = () => {
                   <Typography variant="subtitle1" fontWeight="bold" mb={2}>
                     種目 {index + 1}
                   </Typography>
-                  
+
                   <Stack spacing={2}>
-                    {/* Exercise Type */}
-                    <TextField
-                      select
-                      label="種目名"
-                      value={exercise.name}
-                      onChange={(e) => updateExercise(index, 'name', e.target.value)}
-                      required
-                      fullWidth
-                    >
-                      <MenuItem value="">種目を選択</MenuItem>
-                      {exerciseTypes.map((type) => (
-                        <MenuItem key={type} value={type}>
-                          {type}
-                        </MenuItem>
-                      ))}
-                    </TextField>
-                    
+                    {/* 種目名 (Autocompleteに変更) */}
+                    <Autocomplete
+                      // freeSolo // 自由入力を不可にするため削除
+                      options={exerciseTypes.sort((a, b) => -b.group.localeCompare(a.group))} // グループでソートして表示
+                      groupBy={(option) => option.group} // グループ化
+                      getOptionLabel={(option) => {
+                        // オプションが文字列の場合 (自由入力時) はそのまま表示
+                        if (typeof option === 'string') {
+                          return option;
+                        }
+                        // オブジェクトの場合は name プロパティを表示
+                        return option.name || "";
+                      }}
+                      value={exercise.name} // 現在の値 (オブジェクトまたは文字列)
+                      onChange={(event, newValue) => {
+                        updateExercise(index, 'name', newValue);
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="種目名"
+                          required
+                          fullWidth
+                        />
+                      )}
+                      // オプション選択時にオブジェクト全体が newValue に入る
+                      // 自由入力時は文字列が newValue に入る
+                    />
+
                     <Grid container spacing={2}>
-                      {/* Weight */}
+                      {/* 重量 */}
                       <Grid item xs={4}>
                         <TextField
                           label="重量 (kg)"
@@ -164,29 +185,29 @@ const RecordPage = () => {
                           onChange={(e) => updateExercise(index, 'weight', e.target.value)}
                           required
                           fullWidth
-                          inputProps={{ min: 0, step: 0.5 }}
+                          inputProps={{ min: 0, step: 0.5 }} // 0.5刻み
                         />
                       </Grid>
-                      
-                      {/* Reps */}
+
+                      {/* 回数 (デフォルト値反映) */}
                       <Grid item xs={4}>
                         <TextField
                           label="回数"
                           type="number"
-                          value={exercise.reps}
+                          value={exercise.reps} // デフォルトは '10'
                           onChange={(e) => updateExercise(index, 'reps', e.target.value)}
                           required
                           fullWidth
                           inputProps={{ min: 1 }}
                         />
                       </Grid>
-                      
-                      {/* Sets */}
+
+                      {/* セット数 (デフォルト値反映) */}
                       <Grid item xs={4}>
                         <TextField
                           label="セット数"
                           type="number"
-                          value={exercise.sets}
+                          value={exercise.sets} // デフォルトは '3'
                           onChange={(e) => updateExercise(index, 'sets', e.target.value)}
                           required
                           fullWidth

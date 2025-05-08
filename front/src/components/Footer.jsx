@@ -49,7 +49,7 @@ const Footer = () => {
   );
 };
 
-// Navigation button component
+// ナビゲーションボタンコンポーネント
 const NavButton = ({ to, icon, label, isActive }) => {
   const theme = useTheme();
   const activeColor = theme.palette.primary.main;

@@ -7,6 +7,8 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Autocomplete,
+  TextField,
   Card,
   CardContent,
   Grid,
@@ -52,16 +54,19 @@ function TabPanel(props) {
 
 const StatsPage = () => {
   const { getAllWorkouts, exerciseTypes } = useWorkout();
+  const [displayMode, setDisplayMode] = useState('exercise'); // 'all' または 'exercise'
   const [selectedExercise, setSelectedExercise] = useState('');
   const [chartData, setChartData] = useState([]);
   const [summary, setSummary] = useState({
     maxWeight: 0,
     maxReps: 0,
     maxSets: 0,
+    maxRM: 0,
     totalWorkouts: 0,
   });
   const [tabValue, setTabValue] = useState(0);
   const theme = useTheme();
+  const [allChartData, setAllChartData] = useState([]);
 
   const lineColor = theme.palette.primary.main;
   const gridColor = theme.palette.divider;
@@ -69,13 +74,15 @@ const StatsPage = () => {
   // exerciseTypesが読み込まれたら、選択中の種目を初期化
   useEffect(() => {
     // exerciseTypesがオブジェクトの配列になったため、nameプロパティを使用
-    if (exerciseTypes.length > 0 && !selectedExercise) {
-      setSelectedExercise(exerciseTypes[0].name); // 最初の種目の名前を設定
+    // exerciseTypesがオブジェクトの配列になったため、nameプロパティを使用
+    if (exerciseTypes.length > 0 && !selectedExercise && displayMode === 'exercise') {
+      setSelectedExercise(exerciseTypes[0]); // 最初の種目オブジェクトを設定
     }
-  }, [exerciseTypes, selectedExercise]);
+  }, [exerciseTypes, selectedExercise, displayMode]);
 
-  // 選択中の種目が変更されたらチャートデータを更新
+  // 選択中の種目が変更されたらチャートデータを更新 (各種目モード)
   useEffect(() => {
+    if (displayMode !== 'exercise') return;
     if (!selectedExercise) return;
 
     const workouts = getAllWorkouts();
@@ -85,6 +92,7 @@ const StatsPage = () => {
     let maxWeight = 0;
     let maxReps = 0;
     let maxSets = 0;
+    let maxRM = 0;
     let exerciseCount = 0;
 
     workouts.forEach(workout => {
@@ -100,6 +108,7 @@ const StatsPage = () => {
           maxWeight = Math.max(maxWeight, ex.weight);
           maxReps = Math.max(maxReps, ex.reps);
           maxSets = Math.max(maxSets, ex.sets);
+          maxRM = Math.max(maxRM, calculateRM(ex.weight, ex.reps));
 
           // Add data point
           filteredData.push({
@@ -126,13 +135,63 @@ const StatsPage = () => {
       maxWeight,
       maxReps,
       maxSets,
+      maxRM,
       totalWorkouts: exerciseCount,
     });
-  }, [selectedExercise, getAllWorkouts]);
+  }, [selectedExercise, getAllWorkouts, displayMode]);
+
+  // ALLモードのチャートデータを更新
+  useEffect(() => {
+    if (displayMode !== 'all') return;
+
+    const workouts = getAllWorkouts();
+    const groupedData = {};
+
+    workouts.forEach(workout => {
+      workout.exercises.forEach(exercise => {
+        const { name, weight, reps, sets } = exercise;
+        const date = format(new Date(workout.date), 'MM/dd');
+
+        if (!groupedData[name]) {
+          groupedData[name] = [];
+        }
+
+        groupedData[name].push({
+          date,
+          weight,
+          reps,
+          sets,
+        });
+      });
+    });
+
+    // rechartsで表示できる形式に変換
+    const chartData = Object.entries(groupedData).map(([name, data]) => ({
+      name,
+      data: data.map(item => ({
+        date: item.date,
+        weight: item.weight,
+        reps: item.reps,
+        sets: item.sets,
+      })),
+    }));
+
+    setAllChartData(chartData);
+  }, [getAllWorkouts, displayMode]);
 
   // Handle exercise selection change
-  const handleExerciseChange = (e) => {
-    setSelectedExercise(e.target.value);
+  const handleExerciseChange = (newValue) => {
+    // newValueがオブジェクトの場合はそのままセット、文字列の場合はオブジェクトを検索してセットするか、あるいは文字列のまま扱うかを検討
+    // ここでは Autocomplete の挙動に合わせて newValue をそのままセットする
+    setSelectedExercise(newValue);
+  };
+
+  // RMを計算する関数
+  const calculateRM = (weight, reps) => {
+    if (!weight || !reps) return 0;
+    // Brzyckiの公式を使用 (RM = weight * (36 / (37 - reps)))
+    const rm = weight * (36 / (37 - reps));
+    return Math.round(rm);
   };
 
   // Handle tab change
@@ -146,37 +205,59 @@ const StatsPage = () => {
         <Typography variant="h4" component="h1" align="center">
           トレーニング確認
         </Typography>
-
-        {/* Exercise Selection */}
+        {/* Display Mode Selection */}
         <FormControl fullWidth>
-          <InputLabel id="exercise-select-label">種目を選択</InputLabel>
+          <InputLabel id="display-mode-select-label">表示モードを選択</InputLabel>
           <Select
-            labelId="exercise-select-label"
-            value={selectedExercise}
-            onChange={handleExerciseChange}
-            label="種目を選択"
-            disabled={exerciseTypes.length === 0}
+            labelId="display-mode-select-label"
+            value={displayMode}
+            onChange={(e) => setDisplayMode(e.target.value)}
+            label="表示モードを選択"
           >
-            {/* exerciseTypesがオブジェクト配列になったため、map処理を修正 */}
-            {exerciseTypes.map((type) => (
-              // keyには一意なidを、valueには種目名(name)を使用
-              <MenuItem key={type.id} value={type.name}>
-                {type.name} {/* 表示もnameを使用 */}
-              </MenuItem>
-            ))}
+            <MenuItem value="all">ALL</MenuItem>
+            <MenuItem value="exercise">各種目</MenuItem>
           </Select>
         </FormControl>
 
+        {/* Exercise Selection */}
+        {displayMode === 'exercise' && exerciseTypes && (
+          <Autocomplete
+            options={exerciseTypes.sort((a, b) => -b.group.localeCompare(a.group))} // グループでソートして表示
+            groupBy={(option) => option.group} // グループ化
+            getOptionLabel={(option) => {
+              // オプションが文字列の場合 (自由入力時) はそのまま表示
+              if (typeof option === 'string') {
+                return option;
+              }
+              // オブジェクトの場合は name プロパティを表示
+              return option.name || "";
+            }}
+            value={selectedExercise} // selectedExercise はオブジェクトまたはnullを期待
+            onChange={(event, newValue) => {
+              // newValue は選択されたオプションオブジェクト、または入力された文字列
+              handleExerciseChange(newValue);
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="種目名"
+                required
+                fullWidth
+              />
+            )}
+          />
+        )}
+
         {/* Summary Stats */}
-        {selectedExercise && (
+        {displayMode === 'exercise' && selectedExercise && (
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                {selectedExercise} の記録
+                {selectedExercise?.name || selectedExercise || ''} の記録
               </Typography>
-              
+
               <Grid container spacing={2}>
-                <Grid item xs={6} sm={3}>
+                <Grid item xs={4} sm={3}>
                   <Paper elevation={0} sx={{ p: 2, textAlign: 'center' }}>
                     <Typography variant="body2" color="text.secondary">
                       最大重量
@@ -186,8 +267,8 @@ const StatsPage = () => {
                     </Typography>
                   </Paper>
                 </Grid>
-                
-                <Grid item xs={6} sm={3}>
+
+                <Grid item xs={4} sm={3}>
                   <Paper elevation={0} sx={{ p: 2, textAlign: 'center' }}>
                     <Typography variant="body2" color="text.secondary">
                       最大回数
@@ -197,8 +278,18 @@ const StatsPage = () => {
                     </Typography>
                   </Paper>
                 </Grid>
+                <Grid item xs={4} sm={3}>
+                  <Paper elevation={0} sx={{ p: 2, textAlign: 'center' }}>
+                    <Typography variant="body2" color="text.secondary">
+                      最大RM
+                    </Typography>
+                    <Typography variant="h6">
+                      {summary.maxRM} kg
+                    </Typography>
+                  </Paper>
+                </Grid>
                 
-                <Grid item xs={6} sm={3}>
+                <Grid item xs={4} sm={3}>
                   <Paper elevation={0} sx={{ p: 2, textAlign: 'center' }}>
                     <Typography variant="body2" color="text.secondary">
                       最大セット数
@@ -225,13 +316,14 @@ const StatsPage = () => {
         )}
 
         {/* Charts */}
-        {selectedExercise && chartData.length > 0 ? (
+        {/* displayMode === 'exercise' のグラフ表示は後続のブロックでまとめて処理するため、ここは削除またはコメントアウト */}
+        {/* {displayMode === 'exercise' && selectedExercise && chartData.length > 0 ? (
           <Card>
             <CardContent>
               <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                <Tabs 
-                  value={tabValue} 
-                  onChange={handleTabChange} 
+                <Tabs
+                  value={tabValue}
+                  onChange={handleTabChange}
                   variant="fullWidth"
                   centered
                 >
@@ -240,9 +332,74 @@ const StatsPage = () => {
                   <Tab label="セット数" />
                 </Tabs>
               </Box>
-              
-              {/* Weight Chart */}
-              <TabPanel value={tabValue} index={0}>
+            </CardContent>
+          </Card>
+        ) : displayMode === 'exercise' && selectedExercise && chartData.length === 0 ? ( // chartData.length === 0 を追加
+          <Paper
+            sx={{
+              p: 4,
+              height: 300,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}
+          >
+            <Typography color="text.secondary">
+              {selectedExercise?.name || selectedExercise || ''} のトレーニング記録がありません
+            </Typography>
+          </Paper>
+        ) : null} */}
+
+        {displayMode === 'all' && allChartData.length > 0 && (
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                すべての種目の記録
+              </Typography>
+              <Box sx={{ height: 400 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart>
+                    <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+                    <XAxis dataKey="date" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    {allChartData.map((exercise, index) => (
+                      <Line
+                        key={index}
+                        data={exercise.data}
+                        type="monotone"
+                        dataKey="weight"
+                        stroke={theme.palette.primary[index % 5 === 0 ? 'main' : index % 5 === 1 ? 'dark' : index % 5 === 2 ? 'light' : index % 5 === 3 ? 'contrastText' : 'main']}
+                        name={exercise.name}
+                      />
+                    ))}
+                  </LineChart>
+                </ResponsiveContainer>
+              </Box>
+            </CardContent>
+          </Card>
+        )}
+
+        {displayMode === 'exercise' && selectedExercise ? (
+          chartData.length > 0 ? (
+            <Card>
+              <CardContent>
+                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                  <Tabs
+                    value={tabValue}
+                    onChange={handleTabChange}
+                    variant="fullWidth"
+                    centered
+                  >
+                    <Tab label="重量" />
+                    <Tab label="回数" />
+                    <Tab label="セット数" />
+                  </Tabs>
+                </Box>
+
+                {/* Weight Chart */}
+                <TabPanel value={tabValue} index={0}>
                 <Box sx={{ height: 300 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData}>
@@ -322,21 +479,22 @@ const StatsPage = () => {
                 </Box>
               </TabPanel>
             </CardContent>
-          </Card>
-        ) : selectedExercise ? (
-          <Paper 
-            sx={{ 
-              p: 4, 
-              height: 300, 
-              display: 'flex', 
-              justifyContent: 'center', 
-              alignItems: 'center' 
-            }}
-          >
-            <Typography color="text.secondary">
-              {selectedExercise} のトレーニング記録がありません
-            </Typography>
-          </Paper>
+            </Card>
+          ) : (
+            <Paper
+              sx={{
+                p: 4,
+                height: 300,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}
+            >
+              <Typography color="text.secondary">
+                {selectedExercise?.name || selectedExercise || ''} のトレーニング記録がありません
+              </Typography>
+            </Paper>
+          )
         ) : null}
       </Stack>
     </Container>

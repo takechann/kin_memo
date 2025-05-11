@@ -14,6 +14,7 @@ import {
   Snackbar,
   Alert,
   Autocomplete, // Autocompleteをインポート
+  Switch,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -28,6 +29,7 @@ const RecordPage = () => {
   // exercisesの状態 - repsとsetsにデフォルト値を設定
   const initialExerciseState = { name: null, weight: '', reps: '10', sets: '3' }; // nameはnull初期化 (Autocomplete用)
   const [exercises, setExercises] = useState([initialExerciseState]);
+  const [unit, setUnit] = useState('kg'); // 'kg' または 'lbs'
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
@@ -117,6 +119,14 @@ const RecordPage = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
+  // RMを計算する関数
+  const calculateRM = (weight, reps) => {
+    if (!weight || !reps) return 0;
+    // Brzyckiの公式を使用 (RM = weight * (36 / (37 - reps)))
+    const rm = weight * (36 / (37 - reps));
+    return Math.round(rm);
+  };
+
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Stack spacing={3}>
@@ -177,15 +187,23 @@ const RecordPage = () => {
 
                     <Grid container spacing={2}>
                       {/* 重量 */}
-                      <Grid item xs={4}>
+                      <Grid item xs={5}>
                         <TextField
-                          label="重量 (kg)"
+                          label={`重量 (${unit})`}
                           type="number"
                           value={exercise.weight}
                           onChange={(e) => updateExercise(index, 'weight', e.target.value)}
                           required
                           fullWidth
                           inputProps={{ min: 0, step: 0.5 }} // 0.5刻み
+                        />
+                      </Grid>
+                      <Grid item xs={3} sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Typography>{unit === 'kg' ? 'kg' : 'lbs'}</Typography>
+                        <Switch
+                          checked={unit === 'lbs'}
+                          onChange={(e) => setUnit(e.target.checked ? 'lbs' : 'kg')}
+                          inputProps={{ 'aria-label': '単位切り替え' }}
                         />
                       </Grid>
 
@@ -215,6 +233,10 @@ const RecordPage = () => {
                         />
                       </Grid>
                     </Grid>
+                    {/* RM表示 */}
+                    <Typography variant="body2">
+                      推定RM: {calculateRM(exercise.weight, exercise.reps)} {unit === 'kg' ? 'kg' : 'lbs'}
+                    </Typography>
                   </Stack>
                   
                   {/* Remove Button */}
@@ -262,7 +284,7 @@ const RecordPage = () => {
         open={snackbar.open}
         autoHideDuration={3000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
         <Alert 
           onClose={handleCloseSnackbar} 

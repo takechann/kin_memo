@@ -15,6 +15,7 @@ import {
   Alert,
   Autocomplete, // Autocompleteをインポート
   Switch,
+  Tooltip, // Tooltipをインポート
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -186,8 +187,8 @@ const RecordPage = () => {
                     />
 
                     <Grid container spacing={2}>
-                      {/* 重量 */}
-                      <Grid item xs={5}>
+                      {/* 1列目: 重量と単位 */}
+                      <Grid item xs={12} sm={6}>
                         <TextField
                           label={`重量 (${unit})`}
                           type="number"
@@ -198,17 +199,20 @@ const RecordPage = () => {
                           inputProps={{ min: 0, step: 0.5 }} // 0.5刻み
                         />
                       </Grid>
-                      <Grid item xs={3} sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Typography>{unit === 'kg' ? 'kg' : 'lbs'}</Typography>
-                        <Switch
-                          checked={unit === 'lbs'}
-                          onChange={(e) => setUnit(e.target.checked ? 'lbs' : 'kg')}
-                          inputProps={{ 'aria-label': '単位切り替え' }}
-                        />
+                      <Grid item xs={12} sm={6} sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Typography>kg</Typography>
+                        <Tooltip title="1ポンドは約0.453kgです。" arrow>
+                          <Switch
+                            checked={unit === 'lbs'}
+                            onChange={(e) => setUnit(e.target.checked ? 'lbs' : 'kg')}
+                            inputProps={{ 'aria-label': '単位切り替え' }}
+                          />
+                        </Tooltip>
+                        <Typography>lbs</Typography>
                       </Grid>
 
-                      {/* 回数 (デフォルト値反映) */}
-                      <Grid item xs={4}>
+                      {/* 2列目: 回数とセット数 */}
+                      <Grid item xs={6}>
                         <TextField
                           label="回数"
                           type="number"
@@ -219,9 +223,7 @@ const RecordPage = () => {
                           inputProps={{ min: 1 }}
                         />
                       </Grid>
-
-                      {/* セット数 (デフォルト値反映) */}
-                      <Grid item xs={4}>
+                      <Grid item xs={6}>
                         <TextField
                           label="セット数"
                           type="number"
@@ -235,7 +237,7 @@ const RecordPage = () => {
                     </Grid>
                     {/* RM表示 */}
                     <Typography variant="body2">
-                      推定RM: {calculateRM(exercise.weight, exercise.reps)} {unit === 'kg' ? 'kg' : 'lbs'}
+                      推定RM: {calculateRM(exercise.weight, exercise.reps)} {unit === 'kg' ? 'kg' : `lbs (${Math.round(calculateRM(exercise.weight, exercise.reps) * 0.453)} kg)`}
                     </Typography>
                   </Stack>
                   

@@ -1,0 +1,75 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-initial-exercise-data
+      author: roo
+      changes:
+        - insert:
+            tableName: exercises
+            columns:
+              - column: { name: name, value: "ベンチプレス" }
+              - column: { name: body_part, value: "胸" }
+        - insert:
+            tableName: exercises
+            columns:
+              - column: { name: name, value: "インクラインプレス" }
+              - column: { name: body_part, value: "胸" }
+        - insert:
+            tableName: exercises
+            columns:
+              - column: { name: name, value: "ショルダープレス" }
+              - column: { name: body_part, value: "肩" }
+        - insert:
+            tableName: exercises
+            columns:
+              - column: { name: name, value: "ラテラルレイズ" }
+              - column: { name: body_part, value: "肩" }
+        - insert:
+            tableName: exercises
+            columns:
+              - column: { name: name, value: "アームカール" }
+              - column: { name: body_part, value: "腕" }
+        - insert:
+            tableName: exercises
+            columns:
+              - column: { name: name, value: "ラットプルダウン" }
+              - column: { name: body_part, value: "背中" }
+        - insert:
+            tableName: exercises
+            columns:
+              - column: { name: name, value: "デッドリフト" }
+              - column: { name: body_part, value: "背中" }
+        - insert:
+            tableName: exercises
+            columns:
+              - column: { name: name, value: "スクワット" }
+              - column: { name: body_part, value: "脚" }
+        - insert:
+            tableName: exercises
+            columns:
+              - column: { name: name, value: "レッグプレス" }
+              - column: { name: body_part, value: "脚" }
+        - insert:
+            tableName: exercises
+            columns:
+              - column: { name: name, value: "レッグエクステンション" }
+              - column: { name: body_part, value: "脚" }
+        - insert:
+            tableName: exercises
+            columns:
+              - column: { name: name, value: "レッグカール" }
+              - column: { name: body_part, value: "脚" }
+        - insert:
+            tableName: exercises
+            columns:
+              - column: { name: name, value: "アブドミナル" }
+              - column: { name: body_part, value: "腹筋" }
+        - insert:
+            tableName: exercises
+            columns:
+              - column: { name: name, value: "ダンベルプレス" }
+              - column: { name: body_part, value: "胸" }
+        - insert:
+            tableName: exercises
+            columns:
+              - column: { name: name, value: "チェストインクラインプレス" }
+              - column: { name: body_part, value: "胸" }

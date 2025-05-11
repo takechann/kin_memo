@@ -1,0 +1,18 @@
+services:
+  db:
+    image: mysql:8.0 # 使用したいMySQLのバージョンを指定 (例: 8.0)
+    restart: always
+    environment:
+      # Docker Compose will read these values from the .env file
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      # Docker Compose will read the port from the .env file
+      - "${MYSQL_PORT}:3306" # ローカルのポートとコンテナの3306ポートをマッピング
+    volumes:
+      - db_data:/var/lib/mysql # データを永続化するためのボリューム
+
+volumes:
+  db_data: # データを永続化するための名前付きボリューム

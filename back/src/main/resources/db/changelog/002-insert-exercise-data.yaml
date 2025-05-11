@@ -1,0 +1,104 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-exercise-table
+      author: roo
+      changes:
+        - createTable:
+            tableName: exercise
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: exercise_group # 'group' は予約語の可能性があるため変更
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: insert-initial-exercise-data
+      author: roo
+      changes:
+        - insert:
+            tableName: exercise
+            columns:
+              - column: { name: name, value: "ベンチプレス" }
+              - column: { name: exercise_group, value: "胸" }
+        - insert:
+            tableName: exercise
+            columns:
+              - column: { name: name, value: "インクラインプレス" }
+              - column: { name: exercise_group, value: "胸" }
+        - insert:
+            tableName: exercise
+            columns:
+              - column: { name: name, value: "ショルダープレス" }
+              - column: { name: exercise_group, value: "肩" }
+        - insert:
+            tableName: exercise
+            columns:
+              - column: { name: name, value: "ラテラルレイズ" } # 重複しているが、IDが異なるため一旦そのまま
+              - column: { name: exercise_group, value: "肩" }
+        - insert:
+            tableName: exercise
+            columns:
+              - column: { name: name, value: "アームカール" }
+              - column: { name: exercise_group, value: "腕" }
+        - insert:
+            tableName: exercise
+            columns:
+              - column: { name: name, value: "ラットプルダウン" }
+              - column: { name: exercise_group, value: "背中" }
+        - insert:
+            tableName: exercise
+            columns:
+              - column: { name: name, value: "デッドリフト" }
+              - column: { name: exercise_group, value: "背中" }
+        - insert:
+            tableName: exercise
+            columns:
+              - column: { name: name, value: "スクワット" }
+              - column: { name: exercise_group, value: "脚" }
+        - insert:
+            tableName: exercise
+            columns:
+              - column: { name: name, value: "レッグプレス" }
+              - column: { name: exercise_group, value: "脚" }
+        - insert:
+            tableName: exercise
+            columns:
+              - column: { name: name, value: "レッグエクステンション" }
+              - column: { name: exercise_group, value: "脚" }
+        - insert:
+            tableName: exercise
+            columns:
+              - column: { name: name, value: "レッグカール" }
+              - column: { name: exercise_group, value: "脚" }
+        - insert:
+            tableName: exercise
+            columns:
+              - column: { name: name, value: "アブドミナル" }
+              - column: { name: exercise_group, value: "腹筋" }
+        - insert:
+            tableName: exercise
+            columns:
+              - column: { name: name, value: "ダンベルプレス" }
+              - column: { name: exercise_group, value: "胸" }
+        - insert:
+            tableName: exercise
+            columns:
+              - column: { name: name, value: "チェストインクラインプレス" }
+              - column: { name: exercise_group, value: "胸" }
+        - insert:
+            tableName: exercise
+            columns:
+              - column: { name: name, value: "ラテラルレイズ" } # 重複しているが、IDが異なるため一旦そのまま
+              - column: { name: exercise_group, value: "肩" }

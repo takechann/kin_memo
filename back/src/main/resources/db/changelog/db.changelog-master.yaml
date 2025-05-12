@@ -1,12 +1,12 @@
 databaseChangeLog:
-  # 初回のテーブル作成用のチェンジログファイルを取り込む
-  - include:
-      file: db/changelog/001-create-tables.yaml
-      relativeToChangelogFile: false # src/main/resources/ からの相対パスとして扱う場合
+  # 初回のテーブル作成用のチェンジログファイルを取り込む - REMOVE
+  # - include:
+  #   file: db/changelog/001-create-tables.yaml
+  #   relativeToChangelogFile: false # src/main/resources/ からの相対パスとして扱う場合
 
-  # 初期データを投入するチェンジログファイルを取り込む
-  - include:
-      file: db/changelog/002-insert-initial-data.yaml
-      relativeToChangelogFile: false
+  # 初期データを投入するチェンジログファイルを取り込む - REMOVE
+  # - include:
+  #   file: db/changelog/002-insert-initial-data.yaml
+  #   relativeToChangelogFile: false
 
   # ... 後続のスキーマ変更やデータ変更のチェンジログファイルもここに取り込む ...
